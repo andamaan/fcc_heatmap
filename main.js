@@ -58,6 +58,8 @@ const render = (data, dataArr) => {
     //AXIS
     const xAxis = d3.axisBottom(xScale)
         .tickFormat(d3.format("d"))
+        .tickSizeOuter(0)
+
 
 
     const yAxis = d3.axisLeft(yScale)
