@@ -139,7 +139,6 @@ const render = (data, dataArr) => {
         for (let i = 1; i < count; i++){
             array.push(`${(base + i*step).toFixed(2)} °C`)
         }
-        console.log(array)
         return array
     }
 
@@ -155,6 +154,26 @@ const render = (data, dataArr) => {
         .attr('transform', `translate(250,425)`)
         .call(legendXAxis)
 
+    const legendX = () => {
+        let array = [0]
+        const step = 50
+        const base = 0
+        for (let i = 1; i < 10; i++){
+            array.push(base + i*step)
+        }
+        return array
+    }
+
+    const count = () => {
+        let array = [0]
+        const step = 1
+        const base = 0
+        for (let i = 1; i<10; i++){
+            array.push(base+ i*step)
+        }
+        return array
+    }
+
     svg.append('g')
         .attr('transform', `translate(250,400)`)
         .attr('id', 'legend')
@@ -163,8 +182,8 @@ const render = (data, dataArr) => {
         .enter().append('rect')
             .attr('width', legendXScale.bandwidth() )
             .attr('height', 25)  
-            //.attr('x', d => colorScale(d))
-            .style('fill', d => colorScale(d[0]))
+            .attr('x', (d,i) => legendX(d)[count()[i]])
+            .style('fill', (d,i) => colorScale(d[0]))
 
 }
 
