@@ -1,1 +1,0 @@
-{"version":3,"sources":["style.css"],"names":[],"mappings":"AAAA,KACI,eAAgB,CAChB,iBAAkB,CAClB,cACJ,CAEA,IACI,eACJ","file":"style.8631122b.css","sourceRoot":"..","sourcesContent":["body{\r\n    background: grey;\r\n    text-align: center;\r\n    font-size: 12px;\r\n}\r\n\r\nsvg{\r\n    background: white;\r\n}\r\n\r\n"]}
