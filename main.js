@@ -52,7 +52,6 @@ const render = (data, dataArr) => {
 
     const colorScale = d3.scaleThreshold()
         .domain(colorFunction(minTemp, maxTemp, colors.length))
-        //.domain([d3.min(dataArr, d => data.baseTemperature + d.variance ), d3.max(dataArr, d => data.baseTemperature + d.variance)])
         .range(colors);
 
     //AXIS
