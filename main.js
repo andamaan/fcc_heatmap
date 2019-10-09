@@ -120,7 +120,7 @@ const render = (data, dataArr) => {
                 .attr('fill', d => colorScale(data.baseTemperature + d.variance))
                 .on("mouseover", function(d) {
                     div.attr('data-year', d.year)
-                    .html(d3.timeFormat("%B %Y")(new Date(d.year, d.month - 1, 1)) + "<br/>" + (data.baseTemperature + d.variance) + "°C")
+                    .html(d3.timeFormat("%B %Y")(new Date(d.year, d.month - 1, 1)) + "<br/>" + (data.baseTemperature + d.variance).toFixed(2) + "°C")
                         .style("left", (d3.event.pageX) + "px")
                         .style("top", (d3.event.pageY - 28) + "px")
                         .style("opacity", 1)
