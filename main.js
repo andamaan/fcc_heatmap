@@ -1,19 +1,20 @@
 import * as d3 from 'd3'
+import { legendColor } from 'd3-svg-legend'
+
+const width = document.body.clientWidth - 50
+const height = document.body.clientHeight - 125
 
 const svg = d3.select('svg')
+    .attr('width', width)
+    .attr('height', height)
 const div = d3.select('div')
 
-const width = +svg.attr('width')
-const height = +svg.attr('height')
 
 const render = (data, dataArr) => {
-    const months = ['January','February','March','April','May','June','July','August','September','October','November','December']
     const itemSize = 22
-    const cellSize = itemSize - 1
     const colors = ["#a50026","#d73027","#f46d43","#fdae61","#fee090","#ffffbf","#e0f3f8","#abd9e9","#74add1","#4575b4","#313695"].reverse()
 
-
-    const margin = {top: 25,right: 25,bottom: 175,left: 115 }
+    const margin = {top: 25,right: 25,bottom: 125,left: 115 }
     const innerWidth = width - margin.left - margin.right
     const innerHeight = height - margin.top - margin.bottom
 
@@ -24,7 +25,6 @@ const render = (data, dataArr) => {
     const yAxisLabel = 'Months'
 
     //SCALES
-
     const xScale = d3.scaleLinear()
     .domain([d3.min(dataArr, d => d.year -1 ), d3.max(dataArr, d => d.year +1)])
     .range([0, innerWidth])
@@ -37,8 +37,9 @@ const render = (data, dataArr) => {
 
     //CONST for colorScale
     const variance = dataArr.map(val => val.variance)
-    const minTemp = data.baseTemperature + d3.min(dataArr, d => d.variance)
-    const maxTemp = data.baseTemperature + d3.max(dataArr, d => d.variance)
+    const baseTemp = data.baseTemperature
+    const minTemp = baseTemp + d3.min(dataArr, d => d.variance)
+    const maxTemp = baseTemp + d3.max(dataArr, d => d.variance)
 
     const colorFunction = (min, max, count) => {
         let array = []
@@ -47,6 +48,7 @@ const render = (data, dataArr) => {
         for (let i = 1; i < count; i++){
             array.push(base + i*step)
         }
+        console.log(array)
         return array
     }
 
@@ -103,7 +105,6 @@ const render = (data, dataArr) => {
     .style("opacity", 0)
 
 
-
     //MAP
     svg.append('g')
         .attr('transform', `translate(${margin.left},${margin.top})`)
@@ -130,15 +131,97 @@ const render = (data, dataArr) => {
                 .on("mouseout", function(d) {
                     div.style("opacity", 0);
                     });
-    //Legend
 
+    //Legend
+const legendPlaceHolder = svg
+    .selectAll('.legendPH')
+    .data([null])
+    .enter().append('g')
+        .attr('class', 'legendPH')
+        .attr('id', 'legendPH')
+        .attr('x', width /2)
+        .attr('y', height - 30)
+        .attr('transform', `translate(${width/2 - 250},${height-70})`)
+
+
+
+const legendLabelArr = function() {
+    let arr = []
+    for (let i = 0; i < 10 ; i ++ ) {
+        arr.push("");
+    }
+    arr[0] = minTemp.toFixed(2) + "°C";
+    arr.push(maxTemp.toFixed(2)  + "°C" );
+    
+    let pivotPercentage =  (baseTemp - minTemp) / (maxTemp - minTemp)
+    let legendPivotIndex = Math.round( pivotPercentage * 10 ) - 1
+
+    arr[legendPivotIndex] = baseTemp + "°C"
+    console.log(arr)
+    return arr
+}
+
+const legend = legendColor()
+    .shapeWidth( 50 ) 
+    .shapeHeight( yScale.bandwidth() / 3 )
+    .shapePadding( 0 )
+    .cells( 10 ) 
+    .orient("horizontal") 
+    .scale( colorScale )
+    .labels( legendLabelArr() )
+
+    legendPlaceHolder
+        .call(legend)
+
+
+
+    /*console.log(minTemp)
+    console.log(maxTemp)
+
+    console.log(colorScale.domain())
+
+    const legend = svg
+    .selectAll('.legend')
+    .data([null])
+    .enter().append('g')
+        .attr('class', 'legend')
+        .attr('id', 'legend')
+        .attr('x', width /2)
+        .attr('y', height - 30)
+        .attr('transform', `translate(${width/2 - 250},${height-70})`)
+
+    const legendTicks = legend.selectAll('.tick')
+        .data(colorScale.domain());
+    const ticks = legendTicks
+        .enter().append('g')
+        .attr('class', 'tick');
+    ticks
+        .attr('transform', (d, i) =>  `translate(${i * 50}, 0)`)      
+    ticks.append('rect')
+        .attr('width', 50)
+        .attr('height', 25)
+        .attr('fill', colorScale);
+
+    const legendXScale = d3.scaleLinear()
+    .domain([minTemp, maxTemp])
+    .range([0, 500])
+
+    const legendXAxis = d3.axisBottom(legendXScale)
+        .tickSizeOuter(0)
+
+    legend.append('g')
+        .attr('transform', `translate(0, 25)`)      
+        .call(legendXAxis)*/
+
+    /*
     const colorLegendArr = (min, max, count) => {
         let array = []
         const step = (max-min)/ count
         const base = min
         for (let i = 1; i < count; i++){
-            array.push(`${(base + i*step).toFixed(2)} °C`)
+            array.push((base + i*step).toFixed(2))
         }
+        console.log(array)
         return array
     }
 
@@ -146,13 +229,6 @@ const render = (data, dataArr) => {
         .domain(colorLegendArr(minTemp, maxTemp, colors.length))
         .range([0, 500])
         .padding([0])
-
-    const legendXAxis = d3.axisBottom(legendXScale)
-        .tickSizeOuter(0)
-
-    svg.append('g')
-        .attr('transform', `translate(250,425)`)
-        .call(legendXAxis)
 
     const legendX = () => {
         let array = [0]
@@ -173,9 +249,25 @@ const render = (data, dataArr) => {
         }
         return array
     }
+    
+    const legendXAxis = d3.axisBottom(legendXScale)
+        .tickSizeOuter(0)
 
-    svg.append('g')
-        .attr('transform', `translate(250,400)`)
+    const legend = svg
+        .selectAll('.legend')
+        .data([null])
+        .enter().append('g')
+            .attr('class', 'legend')
+            .attr('id', 'legend')
+            .attr('x', width /2)
+            .attr('y', height - 30)
+            .attr('transform', `translate(${width/2 - 250},${height-75})`)
+
+    legend.append('g')
+        .call(legendXAxis)
+
+    legend.append('g')
+        .attr('transform', `translate(0,-25)`)
         .attr('id', 'legend')
         .selectAll('rect')
         .data(legendXScale.domain())
@@ -183,7 +275,7 @@ const render = (data, dataArr) => {
             .attr('width', legendXScale.bandwidth() )
             .attr('height', 25)  
             .attr('x', (d,i) => legendX(d)[count()[i]])
-            .style('fill', (d,i) => colorScale(d[0]))
+            .style('fill', (d,i) => colorScale(d[0]))*/
 
 }
 
